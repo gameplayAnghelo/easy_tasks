@@ -51,6 +51,8 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  
+  //Creacion de tareas
   List<Task> tasks = [
     Task(
       title: 'Tarea 1',
@@ -71,10 +73,28 @@ class _MainScreenState extends State<MainScreen> {
     ),
   ];
   @override
+  
+  //
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('EasyTasks'),
+        actions: [
+          DropdownButton<String>(
+            value: _selectedFilter,
+            onChanged: (String? newValue) {
+              setState(() {
+                _selectedFilter = newValue!;
+              });
+            },
+            items: _filters.map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+          ),
+        ],
       ),
       drawer: Drawer(
         child: ListView(
@@ -172,7 +192,11 @@ class _MainScreenState extends State<MainScreen> {
                   },
                   child: Text('Ver Calendario'),
                 ),
+                Expanded(
+                  child: _buildTaskList(),
+                ),
               ],
+              
             ),
             SizedBox(height: 20),
             Text(
@@ -233,6 +257,38 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 }
+ //botones para vistas de tareas por fecha o prioridad
+  String _selectedFilter = 'Fecha';
+
+  List<String> _filters = ['Fecha', 'Prioridad', 'Proyecto'];
+
+Widget _buildTaskList() {
+    List<Map<String, String>> tasks = [
+      /*{'name': 'Tarea 1', 'fecha': '2024-09-19', 'prioridad': 'Alta', 'proyecto': 'Proyecto A'},
+      {'name': 'Tarea 2', 'fecha': '2024-09-20', 'prioridad': 'Media', 'proyecto': 'Proyecto B'},
+      // Agrega más tareas según sea necesario*/
+
+    ];
+
+    if (_selectedFilter == 'Fecha') {
+      tasks.sort((a, b) => a['fecha']!.compareTo(b['fecha']!));
+    } else if (_selectedFilter == 'Prioridad') {
+      tasks.sort((a, b) => a['prioridad']!.compareTo(b['prioridad']!));
+    } else if (_selectedFilter == 'Proyecto') {
+      tasks.sort((a, b) => a['proyecto']!.compareTo(b['proyecto']!));
+    }
+
+    return ListView.builder(
+      itemCount: tasks.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(tasks[index]['name']!),
+          subtitle: Text('Fecha: ${tasks[index]['fecha']} - Prioridad: ${tasks[index]['prioridad']} - Proyecto: ${tasks[index]['proyecto']}'),
+        );
+      },
+    );
+  }
+
 
 
 // Pantalla de Detalles de la Tarea (Task Detail Screen)
