@@ -4,12 +4,20 @@ class Task {
   DateTime date;
   List<SubTask> subTasks;
 
-  Task({this.title, this.description, this.date, this.subTasks});
+  Task({
+    required this.title,        // Parámetro requerido
+    required this.description,  // Parámetro requerido
+    required this.date,         // Parámetro requerido
+    this.subTasks = const [],   // Valor por defecto (lista vacía)
+  });
 }
 
 class SubTask {
   String title;
   bool completed;
 
-  SubTask({this.title, this.completed = false});
+  SubTask({
+    required this.title,  // Parámetro requerido
+    this.completed = false, // Valor por defecto
+  });
 }

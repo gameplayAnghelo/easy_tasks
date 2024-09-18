@@ -1,5 +1,32 @@
 import 'package:flutter/material.dart';
 
+// Modelo de SubTask
+class SubTask {
+  String title;
+  bool completed;
+
+  SubTask({
+    required this.title,  // Parámetro requerido
+    this.completed = false, // Valor por defecto
+  });
+}
+
+// Modelo de Task
+class Task {
+  String title;
+  String description;
+  DateTime date;
+  List<SubTask> subTasks;
+
+  Task({
+    required this.title,        // Parámetro requerido
+    required this.description,  // Parámetro requerido
+    required this.date,         // Parámetro requerido
+    this.subTasks = const [],   // Valor por defecto (lista vacía)
+  });
+}
+
+
 void main() {
   runApp(EasyTasksApp());
 }
@@ -17,12 +44,32 @@ class EasyTasksApp extends StatelessWidget {
   }
 }
 
+// Pantalla principal (Main Screen)
 class MainScreen extends StatefulWidget {
   @override
   _MainScreenState createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
+  List<Task> tasks = [
+    Task(
+      title: 'Tarea 1',
+      description: 'Descripción de la Tarea 1',
+      date:DateTime.now(),
+      subTasks: [
+        SubTask(title: 'Subtarea 1-1', completed: false),
+        SubTask(title: 'Subtarea 1-2', completed: true),
+      ],
+    ),
+    Task(
+      title: 'Tarea 2',
+      description: 'Descripción de la Tarea 2',
+      date:DateTime.now(),
+      subTasks: [
+        SubTask(title: 'Subtarea 2-1', completed: false),
+      ],
+    ),
+  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -183,6 +230,97 @@ class _MainScreenState extends State<MainScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+
+// Pantalla de Detalles de la Tarea (Task Detail Screen)
+class TaskDetailScreen extends StatefulWidget {
+  final Task task;
+
+  TaskDetailScreen({ required this.task});
+
+  @override
+  _TaskDetailScreenState createState() => _TaskDetailScreenState();
+}
+
+class _TaskDetailScreenState extends State<TaskDetailScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.task.title),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Text(
+              widget.task.description,
+              style: TextStyle(fontSize: 18),
+            ),
+            SizedBox(height: 10),
+            Text(
+              'Subtareas:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: widget.task.subTasks.length,
+                itemBuilder: (context, index) {
+                  return CheckboxListTile(
+                    title: Text(widget.task.subTasks[index].title),
+                    value: widget.task.subTasks[index].completed,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        widget.task.subTasks[index].completed = value?? false;
+                      });
+                    },
+                  );
+                },
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                _addSubTask(context);
+              },
+              child: Text('Agregar Subtarea'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Método para agregar una subtarea
+  void _addSubTask(BuildContext context) {
+    TextEditingController subTaskController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Nueva Subtarea'),
+          content: TextField(
+            controller: subTaskController,
+            decoration: InputDecoration(hintText: 'Título de la subtarea'),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  widget.task.subTasks.add(SubTask(
+                    title: subTaskController.text,
+                    completed: false,
+                  ));
+                });
+                Navigator.of(context).pop();
+              },
+              child: Text('Agregar'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
